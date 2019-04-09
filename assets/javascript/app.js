@@ -26,7 +26,7 @@
             // Grabs user input
             let trainName = $("#train-name").val().trim();
             let destination = $("#destination").val().trim();
-            let firstTime = moment($("#first-time").val().trim(), "HH:mm").format("X");
+            let firstTime = $("#first-time").val().trim();
             let frequency = $("#frequency").val().trim();
 
             // Creates local "temporary" object for holding train data
@@ -45,6 +45,47 @@
             $("#destination").val("");
             $("#first-time").val("");
             $("#frequency").val("");
+        });
+
+        // When a child is added in the database
+        database.ref().on("child_added", function (childSnapshot) {
+            console.log(childSnapshot.val());
+        
+            // Store everything into a variable.
+            let trainName = childSnapshot.val().trainName;
+            let destination = childSnapshot.val().destination;
+            let firstTime = childSnapshot.val().firstTime;
+            let frequency = childSnapshot.val().frequency;
+        
+            // Train Info
+            console.log(trainName);
+            console.log(destination);
+            console.log(firstTime);
+            console.log(frequency);
+        
+            // Calculate minutes away
+            // TODO: Implement what happens if it's currently before the first time
+            let nowMomment = moment();
+            let firstTimeMoment = moment(firstTime, "HH:mm");
+            let diffMinutes = nowMomment.diff(firstTimeMoment, "minutes");
+            console.log("Diff Minutes:", diffMinutes);
+            let minAway = frequency - (diffMinutes % frequency)
+            console.log("Minutes Away:", minAway);
+
+            // Calculate next arrival time
+            let nextArrival = nowMomment.add(minAway, "minutes").format("HH:mm A");
+        
+            // Create the new row
+            let newRow = $("<tr>").append(
+              $("<td>").text(trainName),
+              $("<td>").text(destination),
+              $("<td>").text(frequency),
+              $("<td>").text(nextArrival),
+              $("<td>").text(minAway)
+            );
+        
+            // Append the new row to the table
+            $("#train-table > tbody").append(newRow);
         });
     });
 })();
