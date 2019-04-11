@@ -35,17 +35,11 @@
         // Add options to the military minute dropdown
         populateDropdowns($("#military-minute"), 0, 59);
 
-        function validateInput() {
-            return true;
-        }
-
         // When the submit button is clicked
         $("#submit").on("click", function() {
             // Prevent the page from reloading
             event.preventDefault();
 
-            console.log($("#military-hour").val());
-            
             // Grabs user input
             let trainName = $("#train-name").val().trim();
             let destination = $("#destination").val().trim();
@@ -53,28 +47,23 @@
             let firstTimeMinute = $("#military-minute").val();
             let frequency = $("#frequency").val().trim();
 
-            // Add to database if all input fields are valid
-            if (validateInput()) {
+            // Creates local "temporary" object for holding train data
+            let newTrain = {
+                trainName: trainName,
+                destination: destination,
+                firstTime: `${ firstTimeHour }:${ firstTimeMinute }`,
+                frequency: frequency
+            };
 
-                // Creates local "temporary" object for holding train data
-                let newTrain = {
-                    trainName: trainName,
-                    destination: destination,
-                    firstTime: `${ firstTimeHour }:${ firstTimeMinute }`,
-                    frequency: frequency
-                };
+            // Uploads train data to the database
+            database.ref().push(newTrain);
 
-                // Uploads train data to the database
-                database.ref().push(newTrain);
-
-                // Clears the form
-                $("#train-name").val("");
-                $("#destination").val("");
-                $("#first-time").val("");
-                $("#military-hour").val(0);
-                $("#military-minute").val(0);
-                $("#frequency").val("");
-            }
+            // Clears the form
+            $("#train-name").val("");
+            $("#destination").val("");
+            $("#military-hour").val(0);
+            $("#military-minute").val(0);
+            $("#frequency").val("");
         });
 
         // When a child is added in the database
